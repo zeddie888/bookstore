@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='styles.css' rel='stylesheet'>
+  <script src='index.js'></script>
+  <title>Bookstore</title>
+</head>
+<body>
+
+  <div id="login">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for='login-username'>Username</label>
+        <input type='text' id='login-username' name='username' required>
+        <label for='login-pw'>Password</label>
+        <input type='password' id='login-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
+        <button>Login</button>
+      </form>
+      <p>
+        Don't have an account?
+        <button id="register-btn">Register</button>
+      </p>
+  </div>
+  <div id="register">
+    <h2>Register</h2>
+    <form id="register-form">
+      <label for='email'>Email</label>
+      <input id="email" type='email' name='email' required>
+      <label for='register-username'>Username</label>
+      <input type='text' id='register-username' name='username' required>
+      <label for='register-pw'>Password</label>
+      <input type='password' id='register-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
+      <button>Sign Up</button>
+    </form>
+  </div>
+  <div id="profile">
+    <h2>Profile</h2>
+    <!-- Hope to have an image here in future-->
+    <img class="pfpic" src="https://imgs.xkcd.com/comics/puzzle.png" alt="profile picture">
+    <p id="profile-name">Name: </p>
+    <p id="profile-balance">Balance: </p>
+  </div>
+
+</body>
+</html>
