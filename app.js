@@ -129,6 +129,8 @@ Make a new entry in Purchases table
 Decrement user credits by that amount
 Decrement item quantity by quantity bought
 
+Increment seller's credits by amount bought * price  TODO
+
 Return text
 */
 app.post("/bookstore/purchase", async (req, res) => {
@@ -158,8 +160,8 @@ app.post("/bookstore/purchase", async (req, res) => {
         .send("Quantity of item in cart exceeds quantity in stock");
     }
     const price = item.price;
-    const credits = user.credits;
-    if (credits < price * quantity) {
+    const buyerCredits = user.credits;
+    if (buyerCredits < price * quantity) {
       return res.status(INVALID_REQUEST).send("Insufficient credits");
     }
 
@@ -169,8 +171,20 @@ app.post("/bookstore/purchase", async (req, res) => {
       itemID,
     ]);
 
-    const newBalance = credits - price * quantity;
-    await db.run("UPDATE users SET credits=? WHERE id=?", [newBalance, userID]);
+    // Decrement buyer's credits
+    const newBalanceBuyer = buyerCredits - price * quantity;
+    await db.run("UPDATE users SET credits=? WHERE id=?", [
+      newBalanceBuyer,
+      userID,
+    ]);
+
+    const seller = await userIDExists(item.seller);
+    const sellerCredits = seller.credits;
+    await db.run("UPDATE users SET credits=? WHERE id=?", [
+      sellerCredits + price * quantity,
+      seller.id,
+    ]);
+
     await db.run(
       "INSERT INTO purchases (item_id, user_id, quantity, price_per_item, total_cost) " +
         "VALUES(?, ?, ?, ?, ?)",

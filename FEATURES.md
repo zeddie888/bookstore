@@ -3,6 +3,9 @@
 Register
 Login
 Logout
+Purchase
+Inventory / Search
+History
 
 ## Done- client side
 
