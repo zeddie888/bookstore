@@ -223,6 +223,29 @@ app.get("/bookstore/inventory/:subject", async (req, res) => {
   }
 });
 
+/*
+History of given user
+
+Check if user ID exists
+Return all purchases that have that USER ID, json
+
+*/
+app.get("/bookstore/history/:userID", async (req, res) => {
+  try {
+    let db = await getDBConnection();
+    const userID = req.params.userID;
+    res.type("text");
+    if (!(await userIDExists(userID))) {
+      return res.status(INVALID_REQUEST).send("User does not exist");
+    }
+    let qry = "SELECT * FROM purchases WHERE user_id=?";
+    let result = await db.all(qry, [userID]);
+    res.json(result);
+  } catch (err) {
+    res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
+  }
+});
+
 async function itemExists(itemID) {
   try {
     let db = await getDBConnection();
