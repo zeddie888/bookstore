@@ -31,7 +31,8 @@ app.post("/bookstore/login", async (req, res) => {
     let password = req.body.password;
     let db = await getDBConnection();
 
-    if (!(await usernameExists(username))) {
+    const user = await usernameExists(username);
+    if (!user) {
       return res.status(INVALID_REQUEST).send("User does not exist");
     }
     if (!isValidPassword(password)) {
@@ -42,11 +43,8 @@ app.post("/bookstore/login", async (req, res) => {
         1,
         username,
       ]);
-      let info = await db.get("SELECT id,credits FROM users WHERE username=?", [
-        username,
-      ]);
       await db.close();
-      res.json(info);
+      res.json(user);
     } else {
       await db.close();
       res.status(INVALID_REQUEST).send("Incorrect Password");
@@ -70,7 +68,9 @@ app.post("/bookstore/logout", async (req, res) => {
     let db = await getDBConnection();
     let userID = req.body.userID;
 
-    if (!(await userIDExists(userID))) {
+    const user = await userIDExists(userID);
+
+    if (!user) {
       return res.status(INVALID_REQUEST).send("User does not exist");
     }
 
@@ -86,7 +86,7 @@ app.post("/bookstore/logout", async (req, res) => {
 Check if email, username, password provided
 Check if user does NOT already exist
 Check if password is valid
-
+Return a text message
 */
 app.post("/bookstore/register", async (req, res) => {
   try {
@@ -99,7 +99,7 @@ app.post("/bookstore/register", async (req, res) => {
     let password = req.body.password;
     let db = await getDBConnection();
 
-    if (await usernameExists(username)) {
+    if ((await usernameExists(username)) !== undefined) {
       return res.status(INVALID_REQUEST).send("User already exists");
     }
     if (!isValidPassword(password)) {
@@ -115,6 +115,85 @@ app.post("/bookstore/register", async (req, res) => {
     res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
   }
 });
+
+/*
+Buy an item
+
+Check if user is logged in given id
+Check item ID is valid
+Check if quantity in cart <= item left in inventory
+Check if user has enough credit for the purchase
+
+Buy the item:
+Make a new entry in Purchases table
+Decrement user credits by that amount
+Decrement item quantity by quantity bought
+
+Return text
+*/
+app.post("/bookstore/purchase", async (req, res) => {
+  try {
+    res.type("text");
+    if (!req.body.userID || !req.body.itemID || !req.body.quantity) {
+      return res.status(INVALID_REQUEST).send(PARAM_ERROR);
+    }
+    let userID = req.body.userID;
+    let itemID = req.body.itemID;
+    let quantity = req.body.quantity;
+    let db = await getDBConnection();
+
+    const user = await userIDExists(userID);
+    if (!user) {
+      return res.status(INVALID_REQUEST).send("User does not exist.");
+    }
+
+    const item = await itemExists(itemID);
+    if (!item) {
+      return res.status(INVALID_REQUEST).send("Item does not exist");
+    }
+    const available = item.quantity;
+    if (quantity > available) {
+      return res
+        .status(INVALID_REQUEST)
+        .send("Quantity of item in cart exceeds quantity in stock");
+    }
+    const price = item.price;
+    const credits = user.credits;
+    if (credits < price * quantity) {
+      return res.status(INVALID_REQUEST).send("Insufficient credits");
+    }
+
+    let newQuantity = available - quantity;
+    await db.run("UPDATE inventory SET quantity=? WHERE id=?", [
+      newQuantity,
+      itemID,
+    ]);
+
+    const newBalance = credits - price * quantity;
+    await db.run("UPDATE users SET credits=? WHERE id=?", [newBalance, userID]);
+    await db.run(
+      "INSERT INTO purchases (item_id, user_id, quantity, price_per_item, total_cost) " +
+        "VALUES(?, ?, ?, ?, ?)",
+      [itemID, userID, quantity, price, price * quantity]
+    );
+    await db.close();
+    res.send("Successfully bought item");
+  } catch (err) {
+    res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
+  }
+});
+
+async function itemExists(itemID) {
+  try {
+    let db = await getDBConnection();
+    let checkItem = "SELECT * FROM inventory WHERE id=?";
+    let result = await db.get(checkItem, [itemID]);
+    await db.close();
+    return result;
+  } catch (err) {
+    throw new Error("Failed");
+  }
+}
 
 async function isCorrectPassword(username, password) {
   try {
@@ -136,10 +215,10 @@ function isValidPassword(password) {
 async function usernameExists(username) {
   try {
     let db = await getDBConnection();
-    let checkUser = "SELECT username FROM users WHERE username=?";
+    let checkUser = "SELECT * FROM users WHERE username=?";
     let result = await db.get(checkUser, [username]);
     await db.close();
-    return result !== undefined;
+    return result;
   } catch (err) {
     throw new Error("Failed");
   }
@@ -148,10 +227,10 @@ async function usernameExists(username) {
 async function userIDExists(userID) {
   try {
     let db = await getDBConnection();
-    let checkUser = "SELECT id FROM users WHERE id=?";
+    let checkUser = "SELECT * FROM users WHERE id=?";
     let result = await db.get(checkUser, [userID]);
     await db.close();
-    return result !== undefined;
+    return result;
   } catch (err) {
     throw new Error("Failed");
   }
