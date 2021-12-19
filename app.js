@@ -183,6 +183,46 @@ app.post("/bookstore/purchase", async (req, res) => {
   }
 });
 
+/*
+View inventory of ALL books
+But must specify subject- "all" for no subject in particular
+Can also provide query- search string (author, title, description)
+
+Return JSON of all books that meet description
+*/
+app.get("/bookstore/inventory/:subject", async (req, res) => {
+  try {
+    let db = await getDBConnection();
+    const subject = req.params.subject;
+    let qry = "SELECT * FROM inventory ";
+    const placeholderVals = [];
+
+    if (subject !== "all") {
+      qry += "WHERE subject=?";
+      placeholderVals.push(subject);
+    }
+    if (req.query.search) {
+      if (subject === "all") {
+        qry += "WHERE";
+      } else {
+        qry += " AND";
+      }
+      const search = "%" + req.query.search + "%";
+      qry += " (title LIKE ? OR author LIKE ? OR description LIKE ?) ";
+      for (let i = 0; i < 3; i++) {
+        placeholderVals.push(search);
+      }
+    }
+    qry += " ORDER BY title";
+    // console.log(qry);
+    // console.log(placeholderVals);
+    let result = await db.all(qry, placeholderVals);
+    res.json(result);
+  } catch (err) {
+    res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
+  }
+});
+
 async function itemExists(itemID) {
   try {
     let db = await getDBConnection();
