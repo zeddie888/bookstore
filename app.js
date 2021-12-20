@@ -261,6 +261,8 @@ app.get("/bookstore/viewBuyHistory/:userID", async (req, res) => {
 });
 
 /*
+View purchases of item belonging to seller
+
 Given: required sellerID and optional query for a specific item ID
 Query the purchases table first for all purchases made on an item sold by seller
 Then if query provided, filter those for only items with itemID
@@ -274,12 +276,19 @@ app.get("/bookstore/viewSellHistory/:sellerID", async (req, res) => {
     if (!(await userIDExists(sellerID))) {
       return res.status(INVALID_REQUEST).send("Seller does not exist");
     }
+    const placeholderVals = [sellerID];
     let qry =
       " SELECT u.username, p.item_id, i.title, p.quantity, p.price_per_item, \
         p.total_cost, p.datetime_purchased \
         FROM purchases p, inventory i, users u \
         WHERE i.seller=? AND p.item_id= i.id AND u.id = p.user_id";
-    let result = await db.all(qry, [sellerID]);
+
+    if (req.query.itemID) {
+      qry += " AND p.item_id=?";
+      placeholderVals.push(req.query.itemID);
+    }
+
+    let result = await db.all(qry, placeholderVals);
     res.json(result);
   } catch (err) {
     res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
