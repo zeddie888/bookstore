@@ -244,7 +244,7 @@ Check if user ID exists
 Return all purchases that have that USER ID, json
 
 */
-app.get("/bookstore/history/:userID", async (req, res) => {
+app.get("/bookstore/viewHistory/:userID", async (req, res) => {
   try {
     let db = await getDBConnection();
     const userID = req.params.userID;

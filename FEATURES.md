@@ -9,8 +9,7 @@ History
 
 ## Done- client side
 
-## TODO client side
+## TODO
 
-Register
-Login
-Logout
+Add a notification system - when someone buys your product, you get a notification or see
+a list of purchases that have been made which you sold
