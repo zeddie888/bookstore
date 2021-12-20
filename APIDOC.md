@@ -35,6 +35,13 @@ Goal: view history of user with userID=userID
 Params: userID
 Return JSON: all purchases made by that user
 
+# GET viewSellHistory/:sellerID
+
+Goal: view history of all products sold belonging to seller
+Params: sellerID
+Query: itemID for a specific selling history of an item
+Return JSON: all purchases made for seller, possibly for a specific item
+
 # FUNCTIONS
 
 1. async itemExists(itemID) - return db data abt item

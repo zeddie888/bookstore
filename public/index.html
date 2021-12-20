@@ -10,7 +10,12 @@
 </head>
 <body>
 
-  <div id="login">
+  <button id="testbtn">Click me</button>
+
+  <div id="message" class="profile">
+
+  </div>
+  <div id="login" class="profile">
       <h2>Login</h2>
       <form id="login-form">
         <label for='login-username'>Username</label>
@@ -19,12 +24,13 @@
         <input type='password' id='login-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
         <button>Login</button>
       </form>
+      <hr>
       <p>
         Don't have an account?
         <button id="register-btn">Register</button>
       </p>
   </div>
-  <div id="register">
+  <div id="register" class="hidden">
     <h2>Register</h2>
     <form id="register-form">
       <label for='email'>Email</label>
@@ -36,13 +42,17 @@
       <button>Sign Up</button>
     </form>
   </div>
-  <div id="profile">
+  <div id="logout" class="hidden">
+    <button id="logout-btn">Logout</button>
+  </div>
+  <div id="profile" class="hidden">
     <h2>Profile</h2>
     <!-- Hope to have an image here in future-->
     <img class="pfpic" src="https://imgs.xkcd.com/comics/puzzle.png" alt="profile picture">
     <p id="profile-name">Name: </p>
     <p id="profile-balance">Balance: </p>
   </div>
+
 
 </body>
 </html>

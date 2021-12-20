@@ -4,3 +4,45 @@
   height: 50px;
   border-radius: 50%;
 }
+
+.hidden {
+  display: none;
+}
+
+.profile {
+  width: 300px;
+  border-radius: 12px;
+  border: solid 12px black;
+  padding: 12px;
+  margin: 12px;
+  display: block;
+}
+
+.profile * {
+  margin-top: 8px;
+}
+
+.profile button {
+  display: block;
+}
+
+body {
+  border: solid 12px black;
+  border-radius: 12px;
+}
+
+.bookshelf {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-flow: row;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: rgb(13, 219, 13);
+}
