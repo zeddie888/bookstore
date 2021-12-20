@@ -29,7 +29,7 @@ Params: subject
 Query: search
 Return JSON: all books that meet filter req
 
-# GET viewHistory/:userID
+# GET viewBuyHistory/:userID
 
 Goal: view history of user with userID=userID
 Params: userID

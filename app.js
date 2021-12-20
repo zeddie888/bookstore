@@ -19,7 +19,7 @@ const SERVER_ERR_MSG = "An error occurred on the server. Try again later.";
 Accept username and password
 Check if auth successful- check if user exists, then check if password matches that of
 Update isLoggedIn
-Return information about the user: userID, credits,
+Return information about the user
 */
 app.post("/bookstore/login", async (req, res) => {
   try {
@@ -244,7 +244,7 @@ Check if user ID exists
 Return all purchases that have that USER ID, json
 
 */
-app.get("/bookstore/viewHistory/:userID", async (req, res) => {
+app.get("/bookstore/viewBuyHistory/:userID", async (req, res) => {
   try {
     let db = await getDBConnection();
     const userID = req.params.userID;
@@ -254,6 +254,32 @@ app.get("/bookstore/viewHistory/:userID", async (req, res) => {
     }
     let qry = "SELECT * FROM purchases WHERE user_id=?";
     let result = await db.all(qry, [userID]);
+    res.json(result);
+  } catch (err) {
+    res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
+  }
+});
+
+/*
+Given: required sellerID and optional query for a specific item ID
+Query the purchases table first for all purchases made on an item sold by seller
+Then if query provided, filter those for only items with itemID
+
+*/
+app.get("/bookstore/viewSellHistory/:sellerID", async (req, res) => {
+  try {
+    let db = await getDBConnection();
+    res.type("text");
+    const sellerID = req.params.sellerID;
+    if (!(await userIDExists(sellerID))) {
+      return res.status(INVALID_REQUEST).send("Seller does not exist");
+    }
+    let qry =
+      " SELECT u.username, p.item_id, i.title, p.quantity, p.price_per_item, \
+        p.total_cost, p.datetime_purchased \
+        FROM purchases p, inventory i, users u \
+        WHERE i.seller=? AND p.item_id= i.id AND u.id = p.user_id";
+    let result = await db.all(qry, [sellerID]);
     res.json(result);
   } catch (err) {
     res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
