@@ -19,8 +19,6 @@
       id("login-pw").value = "";
     });
 
-    id("logout-btn").addEventListener("click", logoutUser);
-
     id("register-btn").addEventListener("click", () => {
       showElement("register", "profile");
       hideElement("login", "profile");
@@ -131,7 +129,7 @@
       .then((res) => res.text())
       .then((msg) => {
         handleMessage(msg, "success");
-        hideElement("logout", "profile");
+        hideElement("profile", "profile");
         showElement("login", "profile");
         window.sessionStorage.removeItem("userID");
         window.sessionStorage.removeItem("username");
@@ -162,11 +160,29 @@
     handleMessage("Welcome " + user.username, "success");
     // Hide login form and show logout
     hideElement("login", "profile");
-    showElement("logout", "profile");
+    showElement("profile", "profile");
     // Add username and password to sessionStorage
     window.sessionStorage.setItem("userID", user.id);
     window.sessionStorage.setItem("username", user.username);
     window.sessionStorage.setItem("password", user.password);
+    // Make the profile card
+    makeProfileCard(user);
+  }
+
+  function makeProfileCard(user) {
+    const profileCard = id("profile");
+    profileCard.innerHTML = "";
+    let name = gen("h2");
+    name.textContent = user.username;
+    let balance = gen("p");
+    balance.textContent = "Balance: $" + user.credits;
+    let logout = gen("button");
+    logout.id = "logout-btn";
+    logout.textContent = "Logout";
+    logout.addEventListener("click", logoutUser);
+    profileCard.appendChild(name);
+    profileCard.appendChild(balance);
+    profileCard.appendChild(logout);
   }
 
   function handleMessage(message, msgType) {

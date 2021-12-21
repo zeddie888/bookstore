@@ -11,19 +11,20 @@ History
 
 Login
 Logout
+Inventory view, filtering
 
 ## TODO
 
 Add a notification system - when someone buys your product, you get a notification or see
 a list of purchases that have been made which you sold
 
-Add sessionStorage for the user when login, so don't need to keep logging in DONE
-
 Hashing for password
 
-## LEFTOFF
+## LEFTOFF / NEXT STEPS
 
-Just started adding UI to the html and styling
+Make the profile card - when login, not just logout but also have profile
+
+Make the viewHistory and viewSoldHistory views
 
 ## TAKE A LOOK AT LATER
 
