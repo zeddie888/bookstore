@@ -33,14 +33,16 @@
   <div id="register" class="hidden">
     <h2>Register</h2>
     <form id="register-form">
-      <label for='email'>Email</label>
-      <input id="email" type='email' name='email' required>
+      <label for='register-email'>Email</label>
+      <input id="register-email" type='email' name='email' required>
       <label for='register-username'>Username</label>
       <input type='text' id='register-username' name='username' required>
       <label for='register-pw'>Password</label>
       <input type='password' id='register-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
       <button>Sign Up</button>
     </form>
+    <hr>
+    <button id="back-register-btn">Back</button>
   </div>
   <div id="logout" class="hidden">
     <button id="logout-btn">Logout</button>
@@ -51,6 +53,14 @@
     <img class="pfpic" src="https://imgs.xkcd.com/comics/puzzle.png" alt="profile picture">
     <p id="profile-name">Name: </p>
     <p id="profile-balance">Balance: </p>
+  </div>
+  <div id="library">
+    <button id="Computer Science Shelf" class="shelf">Computer Science</button>
+    <button id="Physics Shelf" class="shelf">Physics</button>
+    <button id="English Shelf" class="shelf">English</button>
+  </div>
+  <div id="shelf-display">
+
   </div>
 
 

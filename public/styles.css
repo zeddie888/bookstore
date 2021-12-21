@@ -20,9 +20,6 @@
 
 .profile * {
   margin-top: 8px;
-}
-
-.profile button {
   display: block;
 }
 
@@ -31,18 +28,79 @@ body {
   border-radius: 12px;
 }
 
-.bookshelf {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  align-items: center;
-  flex-flow: row;
-}
-
 .error {
   color: red;
 }
 
 .success {
   color: rgb(13, 219, 13);
+}
+
+#shelf-display {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.book {
+  display: flex;
+  flex-wrap: wrap;
+  width: 300px;
+  border: black solid 12px;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
+
+  background-color: transparent;
+  perspective: 1000px; /* Remove this if you don't want the 3D effect */
+  height: 200px;
+}
+
+/* This container is needed to position the front and back side */
+.book-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+/* Do an horizontal flip when you move the mouse over the flip box container */
+.book:hover .book-inner {
+  transform: rotateY(180deg);
+}
+
+/* Position the front and back side */
+.book-front,
+.book-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+/* Style the front side (fallback if image is missing) */
+.book-front {
+  background-color: #bbb;
+  color: black;
+}
+
+/* Style the back side */
+.book-back {
+  background-color: dodgerblue;
+  transform: rotateY(180deg);
+}
+
+#library {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.shelf {
+  flex: 0 0 auto;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
 }

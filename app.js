@@ -208,21 +208,19 @@ app.get("/bookstore/inventory/:subject", async (req, res) => {
   try {
     let db = await getDBConnection();
     const subject = req.params.subject;
-    let qry = "SELECT * FROM inventory ";
+    let qry =
+      "SELECT i.*, u.username \
+              FROM inventory i, users u \
+              WHERE i.seller = u.id ";
     const placeholderVals = [];
 
     if (subject !== "all") {
-      qry += "WHERE subject=?";
+      qry += "AND subject=?";
       placeholderVals.push(subject);
     }
     if (req.query.search) {
-      if (subject === "all") {
-        qry += "WHERE";
-      } else {
-        qry += " AND";
-      }
       const search = "%" + req.query.search + "%";
-      qry += " (title LIKE ? OR author LIKE ? OR description LIKE ?) ";
+      qry += " AND (title LIKE ? OR author LIKE ? OR description LIKE ?) ";
       for (let i = 0; i < 3; i++) {
         placeholderVals.push(search);
       }

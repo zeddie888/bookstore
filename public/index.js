@@ -6,7 +6,7 @@
   window.addEventListener("load", init);
 
   function init() {
-    //TODO: should actually call the login endpoint again?
+    // If already logged in previously, login with sessionStorage items
     if (window.sessionStorage.getItem("userID")) {
       sendLoginRequest(true);
       console.log("already logged in");
@@ -18,6 +18,126 @@
       id("login-username").value = "";
       id("login-pw").value = "";
     });
+
+    id("logout-btn").addEventListener("click", logoutUser);
+
+    id("register-btn").addEventListener("click", () => {
+      showElement("register", "profile");
+      hideElement("login", "profile");
+    });
+    id("back-register-btn").addEventListener("click", () => {
+      showElement("login", "profile");
+      hideElement("register", "profile");
+    });
+
+    id("register-form").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      sendRegisterRequest();
+      id("register-email").value = "";
+      id("register-username").value = "";
+      id("register-pw").value = "";
+    });
+
+    displayBooks("all");
+
+    const subjectButtons = qsa(".shelf");
+    for (let i = 0; i < subjectButtons.length; i++) {
+      subjectButtons[i].addEventListener("click", addButtonFilter);
+    }
+  }
+
+  function addButtonFilter() {
+    let subject = this.id.replace(" Shelf", "");
+    displayBooks(subject);
+  }
+
+  function displayBooks(subject) {
+    id("shelf-display").innerHTML = "";
+    fetch(BASE_URL + "inventory/" + subject)
+      .then(statusCheck)
+      .then((res) => res.json())
+      .then((books) => {
+        for (let book in books) {
+          makeBookCard(books[book]);
+        }
+      })
+      .catch((err) => handleMessage(err, "error"));
+  }
+
+  function makeBookCard(data) {
+    let card = gen("article");
+    card.classList.add("book");
+
+    let cardInner = gen("div");
+    cardInner.classList.add("book-inner");
+
+    //Front
+    let front = gen("div");
+    front.classList.add("book-front");
+    cardInner.appendChild(front);
+
+    let back = gen("div");
+    back.classList.add("book-back");
+    cardInner.appendChild(back);
+
+    let title = gen("h2");
+    title.textContent = data.title;
+    let author = gen("p");
+    let authorText = data.author.replace(";", ", ");
+    author.textContent = authorText;
+
+    front.appendChild(title);
+    front.appendChild(author);
+
+    let description = gen("p");
+    description.textContent = data.description;
+    let sellerName = gen("p");
+    sellerName.textContent = "Sold by: " + data.username;
+    let price = gen("p");
+    price.textContent = "Price: $" + data.price;
+    let quantity = gen("p");
+    quantity.textContent = "In stock: " + data.quantity;
+    let addCartBtn = gen("button");
+    addCartBtn.textContent = "Add to Cart";
+    back.appendChild(description);
+    back.appendChild(sellerName);
+    back.appendChild(price);
+    back.appendChild(quantity);
+    back.appendChild(addCartBtn);
+
+    card.appendChild(cardInner);
+    id("shelf-display").appendChild(card);
+  }
+
+  function sendRegisterRequest() {
+    let data = new FormData(id("register-form"));
+    fetch(BASE_URL + "register", { method: "POST", body: data })
+      .then(statusCheck)
+      .then((res) => res.text())
+      .then((msg) => {
+        handleMessage(msg, "success");
+        hideElement("register", "profile");
+        showElement("login", "profile");
+      })
+      .catch((err) => handleMessage(err, "error"));
+  }
+
+  function logoutUser() {
+    const userID = window.sessionStorage.getItem("userID");
+    let data = new FormData();
+    data.append("userID", userID);
+    fetch(BASE_URL + "logout", { method: "POST", body: data })
+      .then(statusCheck)
+      .then((res) => res.text())
+      .then((msg) => {
+        handleMessage(msg, "success");
+        hideElement("logout", "profile");
+        showElement("login", "profile");
+        window.sessionStorage.removeItem("userID");
+        window.sessionStorage.removeItem("username");
+        window.sessionStorage.removeItem("password");
+      })
+      .catch((err) => handleMessage(err, "error"));
   }
 
   function sendLoginRequest(alreadyLoggedIn) {
@@ -43,7 +163,7 @@
     // Hide login form and show logout
     hideElement("login", "profile");
     showElement("logout", "profile");
-    // Add username and password to sessionStorage TODO
+    // Add username and password to sessionStorage
     window.sessionStorage.setItem("userID", user.id);
     window.sessionStorage.setItem("username", user.username);
     window.sessionStorage.setItem("password", user.password);
