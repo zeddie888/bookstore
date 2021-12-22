@@ -242,15 +242,22 @@ Check if user ID exists
 Return all purchases that have that USER ID, json
 
 */
-app.get("/bookstore/viewBuyHistory/:userID", async (req, res) => {
+app.post("/bookstore/viewBuyHistory", async (req, res) => {
   try {
     let db = await getDBConnection();
-    const userID = req.params.userID;
     res.type("text");
+    if (!req.body.userID) {
+      return res.status(INVALID_REQUEST).send(PARAM_ERROR);
+    }
+    const userID = req.body.userID;
     if (!(await userIDExists(userID))) {
       return res.status(INVALID_REQUEST).send("User does not exist");
     }
-    let qry = "SELECT * FROM purchases WHERE user_id=?";
+    let qry =
+      "SELECT p.*, i.title, i.author, u.username \
+        FROM purchases p, inventory i, users u \
+        WHERE user_id=? AND p.item_id = i.id AND u.id = i.seller \
+        ORDER BY DATETIME(datetime_purchased) DESC";
     let result = await db.all(qry, [userID]);
     res.json(result);
   } catch (err) {

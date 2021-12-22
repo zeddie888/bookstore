@@ -20,9 +20,9 @@ a list of purchases that have been made which you sold
 
 Hashing for password
 
-## LEFTOFF / NEXT STEPS
+Confirmation code fix
 
-Make the profile card - when login, not just logout but also have profile
+## LEFTOFF / NEXT STEPS
 
 Make the viewHistory and viewSoldHistory views
 
