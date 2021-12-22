@@ -44,31 +44,21 @@ body {
 }
 
 .book {
-  width: 300px;
-  height: 200px;
-}
-
-.purchase {
-  font-size: smaller;
-  height: 150px;
-}
-
-.book,
-.purchase {
   display: flex;
   flex-wrap: wrap;
   border: black solid 12px;
   border-radius: 12px;
   padding: 12px;
   margin: 12px;
+  width: 300px;
+  height: 200px;
+  perspective: 1000px; /* Remove this if you don't want the 3D effect */
 
   background-color: transparent;
-  perspective: 1000px; /* Remove this if you don't want the 3D effect */
 }
 
 /* This container is needed to position the front and back side */
-.book-inner,
-.purchase-inner {
+.book-inner {
   position: relative;
   width: 100%;
   height: 100%;
@@ -78,16 +68,13 @@ body {
 }
 
 /* Do an horizontal flip when you move the mouse over the flip box container */
-.book:hover .book-inner,
-.purchase:hover .purchase-inner {
+.book:hover .book-inner {
   transform: rotateY(180deg);
 }
 
 /* Position the front and back side */
 .book-front,
-.book-back,
-.purchase-front,
-.purchase-back {
+.book-back {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -95,15 +82,13 @@ body {
 }
 
 /* Style the front side (fallback if image is missing) */
-.book-front,
-.purchase-front {
+.book-front {
   background-color: #bbb;
   color: black;
 }
 
 /* Style the back side */
-.book-back,
-.purchase-back {
+.book-back {
   background-color: dodgerblue;
   transform: rotateY(180deg);
 }
@@ -119,4 +104,13 @@ body {
   border-radius: 12px;
   padding: 12px;
   margin: 12px;
+}
+
+/* For sold items and purchased items */
+.history {
+  border-radius: 12px;
+  border: solid 8px black;
+  padding: 12px;
+  margin: 12px;
+  display: block;
 }

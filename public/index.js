@@ -36,7 +36,7 @@
       id("register-pw").value = "";
     });
 
-    displayBooks("all");
+    displayBooks("All");
 
     const subjectButtons = qsa(".shelf");
     for (let i = 0; i < subjectButtons.length; i++) {
@@ -176,12 +176,26 @@
     name.textContent = user.username;
     let balance = gen("p");
     balance.textContent = "Balance: $" + user.credits;
+
+    // Add links for History and Items Sold
+    let histories = gen("p");
+    let buyHistory = gen("a");
+    buyHistory.textContent = "Purchase History";
+    buyHistory.href = "history.html";
+    let sellHistory = gen("a");
+    sellHistory.textContent = "Items Sold";
+    sellHistory.href = "sold.html";
+    histories.appendChild(buyHistory);
+    histories.appendChild(sellHistory);
+
     let logout = gen("button");
     logout.id = "logout-btn";
     logout.textContent = "Logout";
     logout.addEventListener("click", logoutUser);
+
     profileCard.appendChild(name);
     profileCard.appendChild(balance);
+    profileCard.appendChild(histories);
     profileCard.appendChild(logout);
   }
 

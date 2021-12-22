@@ -12,6 +12,8 @@ History
 Login
 Logout
 Inventory view, filtering
+View buy history
+View sell history
 
 ## TODO
 
@@ -20,15 +22,13 @@ a list of purchases that have been made which you sold
 
 Hashing for password
 
-Confirmation code fix
+Confirmation code fix - debate one confirmation for entire card or for each book?
 
 ## LEFTOFF / NEXT STEPS
 
-Make the viewHistory and viewSoldHistory views
-
 ## TAKE A LOOK AT LATER
 
-Cannot ever have .hidden and .profile at the same time since the display: conflicts
+Style the history stuff differently
 
 ## Code for later
 

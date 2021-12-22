@@ -8,60 +8,60 @@
   function init() {
     if (window.sessionStorage.getItem("userID")) {
       makeHeading();
-      displayAllPurchases();
+      displayAllItemsSold();
     }
   }
 
-  function displayAllPurchases() {
+  function displayAllItemsSold() {
     const userID = window.sessionStorage.getItem("userID");
     let data = new FormData();
-    data.append("userID", userID);
-    fetch(BASE_URL + "viewBuyHistory/", { method: "POST", body: data })
+    data.append("sellerID", userID);
+    fetch(BASE_URL + "viewSellHistory/", { method: "POST", body: data })
       .then(statusCheck)
       .then((res) => res.json())
-      .then((purchases) => {
-        for (let i = 0; i < purchases.length; i++) {
-          makePurchaseCard(purchases[i]);
+      .then((itemsSold) => {
+        for (let i = 0; i < itemsSold.length; i++) {
+          makeSoldCard(itemsSold[i]);
         }
       })
       .catch((err) => handleMessage(err, "error"));
   }
 
-  function makePurchaseCard(data) {
+  function makeSoldCard(sold) {
     let card = gen("article");
     card.classList.add("history");
 
-    let heading = gen("h2");
-    let authorText = data.author.replace(";", ", ");
-    heading.textContent = data.title + " by " + authorText;
-    let datetime = gen("p");
-    datetime.textContent = data.datetime_purchased;
+    let heading = gen("p");
+    let authorText = sold.author.replace(";", ", ");
+    heading.textContent = "Item: " + sold.title + " by " + authorText;
     let quantity = gen("p");
-    quantity.textContent = "Quantity: " + data.quantity;
-    let costPerBook = gen("p");
-    costPerBook.textContent = "Price Per Book: $" + data.price_per_item;
-    let cost = gen("p");
-    cost.textContent = "Cost: $" + data.total_cost;
-    let sellerName = gen("p");
-    sellerName.textContent = "Sold by: " + data.username;
-    let confirmation = gen("p");
-    confirmation.textContent = "Confirmation Code: " + data.confirmation_code;
+    quantity.textContent = "Quantity: " + sold.quantity;
+    let pricePerBook = gen("p");
+    pricePerBook.textContent = "Price Per Item: " + sold.price_per_item;
+    let totalCost = gen("p");
+    totalCost.textContent = "Total Cost: " + sold.total_cost;
+    let buyer = gen("p");
+    buyer.textContent = "Sold to: " + sold.username;
+    if (sold.username === window.sessionStorage.getItem("username")) {
+      buyer.textContent += " (You)";
+    }
+    let whenPurchased = gen("p");
+    whenPurchased.textContent = "Bought: " + sold.datetime_purchased;
 
     card.appendChild(heading);
-    card.appendChild(datetime);
     card.appendChild(quantity);
-    card.appendChild(costPerBook);
-    card.appendChild(cost);
-    card.appendChild(sellerName);
-    card.appendChild(confirmation);
+    card.appendChild(pricePerBook);
+    card.appendChild(totalCost);
+    card.appendChild(buyer);
+    card.appendChild(whenPurchased);
 
-    id("history").appendChild(card);
+    id("items-sold").appendChild(card);
   }
 
   function makeHeading() {
     let heading = gen("h1");
     const username = window.sessionStorage.getItem("username");
-    heading.textContent = username + "'s Purchase History";
+    heading.textContent = "Items sold by " + username;
     qs("body").prepend(heading);
   }
 

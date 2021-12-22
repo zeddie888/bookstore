@@ -214,7 +214,7 @@ app.get("/bookstore/inventory/:subject", async (req, res) => {
               WHERE i.seller = u.id ";
     const placeholderVals = [];
 
-    if (subject !== "all") {
+    if (subject !== "All") {
       qry += "AND subject=?";
       placeholderVals.push(subject);
     }
@@ -273,20 +273,24 @@ Query the purchases table first for all purchases made on an item sold by seller
 Then if query provided, filter those for only items with itemID
 
 */
-app.get("/bookstore/viewSellHistory/:sellerID", async (req, res) => {
+app.post("/bookstore/viewSellHistory", async (req, res) => {
   try {
     let db = await getDBConnection();
     res.type("text");
-    const sellerID = req.params.sellerID;
+    if (!req.body.sellerID) {
+      return res.status(INVALID_REQUEST).send(PARAM_ERROR);
+    }
+    const sellerID = req.body.sellerID;
     if (!(await userIDExists(sellerID))) {
       return res.status(INVALID_REQUEST).send("Seller does not exist");
     }
     const placeholderVals = [sellerID];
     let qry =
-      " SELECT u.username, p.item_id, i.title, p.quantity, p.price_per_item, \
+      " SELECT u.username, i.title, i.author, p.quantity, p.price_per_item, \
         p.total_cost, p.datetime_purchased \
         FROM purchases p, inventory i, users u \
-        WHERE i.seller=? AND p.item_id= i.id AND u.id = p.user_id";
+        WHERE i.seller=? AND p.item_id= i.id AND u.id = p.user_id \
+        ORDER BY DATETIME(datetime_purchased) DESC";
 
     if (req.query.itemID) {
       qry += " AND p.item_id=?";
