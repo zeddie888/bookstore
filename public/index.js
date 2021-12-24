@@ -3,6 +3,7 @@
 (function () {
   const BASE_URL = "/bookstore/";
   let cart;
+  let cartTotal;
 
   window.addEventListener("load", init);
 
@@ -98,7 +99,7 @@
     quantity.textContent = "In stock: " + data.quantity;
 
     let addCartBtn = gen("button");
-    if (!isLoggedIn()) {
+    if (!isLoggedIn() || data.quantity <= 0) {
       addCartBtn.disabled = true;
     }
     addCartBtn.classList.add("add-cart-btn");
@@ -127,6 +128,9 @@
   }
 
   function displayCart() {
+    cartTotal = 0;
+    id("cart-total").innerHTML = "";
+
     const cartItems = id("cart-items");
     cartItems.innerHTML = "";
     for (let itemID in cart) {
@@ -140,21 +144,40 @@
       .then((res) => res.json())
       .then((data) => {
         makeCartCard(data, itemID);
+        cartTotal += cart[itemID] * data.price;
+        id("cart-total").textContent = "Cart Total: " + cartTotal;
       })
       .catch((err) => handleMessage(err, "error"));
   }
 
   function makeCartCard(data, itemID) {
     let card = gen("article");
+    card.classList.add("cart-card");
+
     let title = gen("h3");
     title.textContent = "Item: " + data.title;
     let quantity = gen("p");
     quantity.textContent = "Quantity: " + cart[itemID];
+    let cost = gen("p");
+    cost.textContent = "Cost: " + cart[itemID] * data.price;
+
+    let deleteBtn = gen("button");
+    deleteBtn.textContent = "Remove from cart";
+    deleteBtn.addEventListener("click", () => {
+      removeCartItem(itemID);
+    });
 
     card.appendChild(title);
     card.appendChild(quantity);
+    card.appendChild(cost);
+    card.appendChild(deleteBtn);
     // New appjs endpoint, give price for given item
     id("cart-items").appendChild(card);
+  }
+
+  function removeCartItem(itemID) {
+    delete cart[itemID];
+    saveCart();
   }
 
   function sendRegisterRequest() {
@@ -206,6 +229,7 @@
 
       // Make and save new cart
       cart = {};
+      // cart.total = 0;
     }
     saveCart();
 
@@ -275,6 +299,7 @@
 
   function clearCart() {
     cart = {};
+    // cart.total = 0;
     saveCart();
   }
 

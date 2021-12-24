@@ -307,7 +307,6 @@ app.post("/bookstore/viewSellHistory", async (req, res) => {
 app.get("/bookstore/itemInfo/:itemID", async (req, res) => {
   try {
     let itemInfo = await itemExists(req.params.itemID);
-    console.log(itemInfo);
     if (itemInfo == null) {
       return res
         .type("text")
