@@ -2,12 +2,14 @@
 
 (function () {
   const BASE_URL = "/bookstore/";
+  let cart;
 
   window.addEventListener("load", init);
 
   function init() {
+    displayBooks("All");
     // If already logged in previously, login with sessionStorage items
-    if (window.sessionStorage.getItem("userID")) {
+    if (isLoggedIn()) {
       sendLoginRequest(true);
       console.log("already logged in");
     }
@@ -36,8 +38,6 @@
       id("register-pw").value = "";
     });
 
-    displayBooks("All");
-
     const subjectButtons = qsa(".shelf");
     for (let i = 0; i < subjectButtons.length; i++) {
       subjectButtons[i].addEventListener("click", addButtonFilter);
@@ -64,6 +64,7 @@
 
   function makeBookCard(data) {
     let card = gen("article");
+    card.id = "book-" + data.id;
     card.classList.add("book");
 
     let cardInner = gen("div");
@@ -95,8 +96,17 @@
     price.textContent = "Price: $" + data.price;
     let quantity = gen("p");
     quantity.textContent = "In stock: " + data.quantity;
+
     let addCartBtn = gen("button");
+    if (!isLoggedIn()) {
+      addCartBtn.disabled = true;
+    }
+    addCartBtn.classList.add("add-cart-btn");
     addCartBtn.textContent = "Add to Cart";
+    addCartBtn.addEventListener("click", () => {
+      addToCart(data.id);
+    });
+
     back.appendChild(description);
     back.appendChild(sellerName);
     back.appendChild(price);
@@ -105,6 +115,46 @@
 
     card.appendChild(cardInner);
     id("shelf-display").appendChild(card);
+  }
+
+  function addToCart(itemID) {
+    if (itemID in cart) {
+      cart[itemID]++;
+    } else {
+      cart[itemID] = 1;
+    }
+    saveCart();
+  }
+
+  function displayCart() {
+    const cartItems = id("cart-items");
+    cartItems.innerHTML = "";
+    for (let itemID in cart) {
+      getItemData(itemID);
+    }
+  }
+
+  function getItemData(itemID) {
+    fetch(BASE_URL + "itemInfo/" + itemID)
+      .then(statusCheck)
+      .then((res) => res.json())
+      .then((data) => {
+        makeCartCard(data, itemID);
+      })
+      .catch((err) => handleMessage(err, "error"));
+  }
+
+  function makeCartCard(data, itemID) {
+    let card = gen("article");
+    let title = gen("h3");
+    title.textContent = "Item: " + data.title;
+    let quantity = gen("p");
+    quantity.textContent = "Quantity: " + cart[itemID];
+
+    card.appendChild(title);
+    card.appendChild(quantity);
+    // New appjs endpoint, give price for given item
+    id("cart-items").appendChild(card);
   }
 
   function sendRegisterRequest() {
@@ -131,9 +181,13 @@
         handleMessage(msg, "success");
         hideElement("profile", "profile");
         showElement("login", "profile");
-        window.sessionStorage.removeItem("userID");
-        window.sessionStorage.removeItem("username");
-        window.sessionStorage.removeItem("password");
+        // window.sessionStorage.removeItem("userID");
+        // window.sessionStorage.removeItem("username");
+        // window.sessionStorage.removeItem("password");
+        clearCart();
+        window.sessionStorage.clear(); // includes cart
+
+        displayBooks("All");
       })
       .catch((err) => handleMessage(err, "error"));
   }
@@ -141,12 +195,19 @@
   function sendLoginRequest(alreadyLoggedIn) {
     let data;
     if (alreadyLoggedIn) {
+      // Get the stored cart
+      cart = JSON.parse(window.sessionStorage.getItem("cart"));
+
       data = new FormData();
       data.append("username", window.sessionStorage.getItem("username"));
       data.append("password", window.sessionStorage.getItem("password"));
     } else {
       data = new FormData(id("login-form"));
+
+      // Make and save new cart
+      cart = {};
     }
+    saveCart();
 
     fetch(BASE_URL + "login", { method: "POST", body: data })
       .then(statusCheck)
@@ -167,6 +228,8 @@
     window.sessionStorage.setItem("password", user.password);
     // Make the profile card
     makeProfileCard(user);
+
+    displayBooks("All");
   }
 
   function makeProfileCard(user) {
@@ -199,6 +262,22 @@
     profileCard.appendChild(logout);
   }
 
+  function isLoggedIn() {
+    return window.sessionStorage.getItem("userID") !== null;
+  }
+
+  function freezeAllAddCartBtns() {
+    const btns = qsa(".add-cart-btn");
+    for (let btn of btns) {
+      btn.disabled = true;
+    }
+  }
+
+  function clearCart() {
+    cart = {};
+    saveCart();
+  }
+
   function handleMessage(message, msgType) {
     let messageBoard = id("message");
     messageBoard.value = "";
@@ -212,6 +291,11 @@
         messageBoard.classList.add("success");
         break;
     }
+  }
+
+  function saveCart() {
+    window.sessionStorage.setItem("cart", JSON.stringify(cart));
+    displayCart();
   }
 
   /** ------------------------------ Helper Functions  ------------------------------ */

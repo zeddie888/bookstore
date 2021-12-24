@@ -24,11 +24,15 @@ Hashing for password
 
 Confirmation code fix - debate one confirmation for entire card or for each book?
 
+Sell history page - enable filtering by specific book
+
 ## LEFTOFF / NEXT STEPS
 
 ## TAKE A LOOK AT LATER
 
 Style the history stuff differently
+
+Do we really need to do a fetch each time we filter?
 
 ## Code for later
 
