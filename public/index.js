@@ -125,17 +125,7 @@
       cart[itemID] = 1;
     }
     saveCart();
-  }
-
-  function displayCart() {
-    cartTotal = 0;
-    id("cart-total").innerHTML = "";
-
-    const cartItems = id("cart-items");
-    cartItems.innerHTML = "";
-    for (let itemID in cart) {
-      getItemData(itemID);
-    }
+    id("buy-all-btn").disabled = false;
   }
 
   function getItemData(itemID) {
@@ -220,6 +210,7 @@
     if (alreadyLoggedIn) {
       // Get the stored cart
       cart = JSON.parse(window.sessionStorage.getItem("cart"));
+      saveCart();
 
       data = new FormData();
       data.append("username", window.sessionStorage.getItem("username"));
@@ -228,10 +219,8 @@
       data = new FormData(id("login-form"));
 
       // Make and save new cart
-      cart = {};
-      // cart.total = 0;
+      clearCart();
     }
-    saveCart();
 
     fetch(BASE_URL + "login", { method: "POST", body: data })
       .then(statusCheck)
@@ -246,6 +235,7 @@
     // Hide login form and show logout
     hideElement("login", "profile");
     showElement("profile", "profile");
+
     // Add username and password to sessionStorage
     window.sessionStorage.setItem("userID", user.id);
     window.sessionStorage.setItem("username", user.username);
@@ -253,7 +243,30 @@
     // Make the profile card
     makeProfileCard(user);
 
+    // TODO
+    id("buy-all-btn").addEventListener("click", buyAllFromCart);
+
     displayBooks("All");
+  }
+
+  function buyAllFromCart() {
+    // let purchases = Object.keys(cart);
+    // for (let i = 0; i < purchases.length; i++) {
+    //   let itemID = purchases[i];
+    //   console.log("item bought: " + itemID);
+    //   let data = new FormData();
+    //   data.append("itemID", itemID);
+    //   data.append("userID", userID);
+    //   data.append("quantity", cart[itemID]);
+    //   fetch(BASE_URL + "purchase", { method: "POST", body: data })
+    //     .then(statusCheck)
+    //     .then((res) => res.text())
+    //     .then((res) => handleMessage(res, "success"))
+    //     .then(() => {
+    //       clearCart();
+    //     })
+    //     .catch((err) => handleMessage(err, "error"));
+    // }
   }
 
   function makeProfileCard(user) {
@@ -290,16 +303,8 @@
     return window.sessionStorage.getItem("userID") !== null;
   }
 
-  function freezeAllAddCartBtns() {
-    const btns = qsa(".add-cart-btn");
-    for (let btn of btns) {
-      btn.disabled = true;
-    }
-  }
-
   function clearCart() {
     cart = {};
-    // cart.total = 0;
     saveCart();
   }
 
@@ -320,7 +325,21 @@
 
   function saveCart() {
     window.sessionStorage.setItem("cart", JSON.stringify(cart));
+    if (Object.keys(cart).length === 0) {
+      id("buy-all-btn").disabled = true;
+    }
     displayCart();
+  }
+
+  function displayCart() {
+    cartTotal = 0;
+    id("cart-total").innerHTML = "";
+
+    const cartItems = id("cart-items");
+    cartItems.innerHTML = "";
+    for (let itemID in cart) {
+      getItemData(itemID);
+    }
   }
 
   /** ------------------------------ Helper Functions  ------------------------------ */

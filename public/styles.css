@@ -115,9 +115,16 @@ body {
   display: block;
 }
 
+#cart-items {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+}
+
 .cart-card {
   border-radius: 12px;
   padding: 12px;
   margin: 12px;
   background-color: slategray;
+  width: 120px;
 }

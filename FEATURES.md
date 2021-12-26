@@ -26,6 +26,8 @@ Confirmation code fix - debate one confirmation for entire card or for each book
 
 Sell history page - enable filtering by specific book
 
+Make it not possible to add more to cart pricier than credits left
+
 ## LEFTOFF / NEXT STEPS
 
 ## TAKE A LOOK AT LATER
