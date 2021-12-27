@@ -250,23 +250,24 @@
   }
 
   function buyAllFromCart() {
-    // let purchases = Object.keys(cart);
-    // for (let i = 0; i < purchases.length; i++) {
-    //   let itemID = purchases[i];
-    //   console.log("item bought: " + itemID);
-    //   let data = new FormData();
-    //   data.append("itemID", itemID);
-    //   data.append("userID", userID);
-    //   data.append("quantity", cart[itemID]);
-    //   fetch(BASE_URL + "purchase", { method: "POST", body: data })
-    //     .then(statusCheck)
-    //     .then((res) => res.text())
-    //     .then((res) => handleMessage(res, "success"))
-    //     .then(() => {
-    //       clearCart();
-    //     })
-    //     .catch((err) => handleMessage(err, "error"));
-    // }
+    let purchases = Object.keys(cart);
+    for (let i = 0; i < purchases.length; i++) {
+      let itemID = purchases[i];
+      console.log("item bought: " + itemID);
+      let data = new FormData();
+      data.append("itemID", itemID);
+      data.append("userID", window.sessionStorage.getItem("userID"));
+      data.append("quantity", cart[itemID]);
+      fetch(BASE_URL + "purchase", { method: "POST", body: data })
+        .then(statusCheck)
+        .then((res) => res.text())
+        .then((res) => handleMessage(res, "success"))
+        .then(() => {
+          clearCart();
+          sendLoginRequest(true);
+        })
+        .catch((err) => handleMessage(err, "error"));
+    }
   }
 
   function makeProfileCard(user) {
