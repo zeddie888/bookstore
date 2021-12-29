@@ -359,7 +359,9 @@
 
   function hideElement(elementID, className) {
     let element = id(elementID);
-    element.classList.remove(className);
+    if (className !== "") {
+      element.classList.remove(className);
+    }
     element.classList.add("hidden");
   }
 

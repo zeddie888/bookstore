@@ -9,67 +9,81 @@
   <title>Bookstore</title>
 </head>
 <body>
+  <h1 class="title">Bookstore</h1>
+  <div id="message">
 
-  <div id="message" class="profile">
-
-  </div>
-  <div id="login" class="profile">
-      <h2>Login</h2>
-      <form id="login-form">
-        <label for='login-username'>Username</label>
-        <input type='text' id='login-username' name='username' required>
-        <label for='login-pw'>Password</label>
-        <input type='password' id='login-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
-        <button>Login</button>
-      </form>
-      <hr>
-      <p>
-        Don't have an account?
-        <button id="register-btn">Register</button>
-      </p>
-  </div>
-  <div id="register" class="hidden">
-    <h2>Register</h2>
-    <form id="register-form">
-      <label for='register-email'>Email</label>
-      <input id="register-email" type='email' name='email' required>
-      <label for='register-username'>Username</label>
-      <input type='text' id='register-username' name='username' required>
-      <label for='register-pw'>Password</label>
-      <input type='password' id='register-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
-      <button>Sign Up</button>
-    </form>
-    <hr>
-    <button id="back-register-btn">Back</button>
-  </div>
-  <div id="logout" class="hidden">
 
   </div>
-  <div id="profile" class="hidden">
-    <!-- TODO Hope to have an image here in future-->
-  </div>
-  <div id="cart" class="profile">
-    <!-- TODO: NOT class profile -->
-    <h2>Cart</h2>
-    <div id="cart-items">
+
+  <div id="wrapper-page">
+    <div id="left-page">
+      <div id="login" class="profile">
+          <h2>Login</h2>
+          <form id="login-form">
+            <label for='login-username'>Username</label>
+            <input type='text' id='login-username' name='username' required>
+            <label for='login-pw'>Password</label>
+            <input type='password' id='login-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
+            <button>Login</button>
+          </form>
+          <hr>
+          <p>
+            Don't have an account?
+            <button id="register-btn">Register</button>
+          </p>
+      </div>
+      <div id="register" class="hidden">
+        <h2>Register</h2>
+        <form id="register-form">
+          <label for='register-email'>Email</label>
+          <input id="register-email" type='email' name='email' required>
+          <label for='register-username'>Username</label>
+          <input type='text' id='register-username' name='username' required>
+          <label for='register-pw'>Password</label>
+          <input type='password' id='register-pw' name='password' pattern="^[a-zA-Z]\S{3,14}$" required>
+          <button>Sign Up</button>
+        </form>
+        <hr>
+        <button id="back-register-btn">Back</button>
+      </div>
+      <div id="logout" class="hidden">
+
+      </div>
+
+
+      <div id="profile" class="hidden">
+        <!-- TODO Hope to have an image here in future-->
+      </div>
+      <div id="cart" class="profile">
+        <!-- TODO: NOT class profile -->
+        <h2>Cart</h2>
+        <div id="cart-items">
+
+        </div>
+        <p id="cart-total"></p>
+
+        <button id="buy-all-btn" disabled>Buy All</button>
+      </div>
+    </div>
+
+    <div id="right-page"></div>
+      <div id="library">
+        <button id="All Shelf" class="shelf">All</button>
+        <button id="Computer Science Shelf" class="shelf">Computer Science</button>
+        <button id="Physics Shelf" class="shelf">Physics</button>
+        <button id="English Shelf" class="shelf">English</button>
+        <button id="Math Shelf" class="shelf">Math</button>
+        <button id="Chemistry Shelf" class="shelf">Chemistry</button>
+        <button id="Psychology Shelf" class="shelf">Psychology</button>
+        <button id="Biology Shelf" class="shelf">Biology</button>
+      </div>
 
     </div>
-    <p id="cart-total"></p>
-    <button id="buy-all-btn" disabled>Buy All</button>
-  </div>
-
-  <div id="library">
-    <button id="All Shelf" class="shelf">All</button>
-    <button id="Computer Science Shelf" class="shelf">Computer Science</button>
-    <button id="Physics Shelf" class="shelf">Physics</button>
-    <button id="English Shelf" class="shelf">English</button>
-    <button id="Math Shelf" class="shelf">Math</button>
-    <button id="Chemistry Shelf" class="shelf">Chemistry</button>
-    <button id="Psychology Shelf" class="shelf">Psychology</button>
   </div>
   <div id="shelf-display">
 
   </div>
+
 
 
 </body>

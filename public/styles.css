@@ -101,6 +101,7 @@ body {
 
 .shelf {
   flex: 0 0 auto;
+  width: 150px;
   border-radius: 12px;
   padding: 12px;
   margin: 12px;
@@ -127,4 +128,18 @@ body {
   margin: 12px;
   background-color: slategray;
   width: 120px;
+}
+
+.title {
+  text-align: center;
+}
+
+#message {
+  padding: 12px;
+  margin: 12px;
+}
+
+#wrapper-page {
+  display: flex;
+  justify-content: space-around;
 }
