@@ -7,62 +7,31 @@
 
   function init() {
     if (window.sessionStorage.getItem("userID")) {
-      makeHeading();
-      displayAllPurchases();
+      id("sell-form").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        addNewItem();
+      });
+      qs("#sell-form button").disabled = false;
+    } else {
+      qs("#sell-form button").disabled = true;
     }
   }
 
-  function displayAllPurchases() {
-    const userID = window.sessionStorage.getItem("userID");
-    let data = new FormData();
-    data.append("userID", userID);
-    fetch(BASE_URL + "viewBuyHistory/", { method: "POST", body: data })
+  function addNewItem() {
+    let data = new FormData(id("sell-form"));
+    data.append("userID", window.sessionStorage.getItem("userID"));
+    fetch(BASE_URL + "listNewItem", { method: "POST", body: data })
       .then(statusCheck)
-      .then((res) => res.json())
-      .then((purchases) => {
-        for (let i = 0; i < purchases.length; i++) {
-          makePurchaseCard(purchases[i]);
+      .then((res) => res.text())
+      .then((res) => {
+        let inputs = qsa("#sell-form input");
+        for (let i = 0; i < inputs.length; i++) {
+          inputs[i].value = "";
         }
+        id("sell-descr").value = "";
+        handleMessage(res, "success");
       })
       .catch((err) => handleMessage(err, "error"));
-  }
-
-  function makePurchaseCard(data) {
-    let card = gen("article");
-    card.classList.add("history");
-
-    let heading = gen("h2");
-    let authorText = data.author.replace(";", ", ");
-    heading.textContent = data.title + " by " + authorText;
-    let datetime = gen("p");
-    datetime.textContent = data.datetime_purchased;
-    let quantity = gen("p");
-    quantity.textContent = "Quantity: " + data.quantity;
-    let costPerBook = gen("p");
-    costPerBook.textContent = "Price Per Book: $" + data.price_per_item;
-    let cost = gen("p");
-    cost.textContent = "Total Cost: $" + data.total_cost;
-    let sellerName = gen("p");
-    sellerName.textContent = "Sold by: " + data.username;
-    let confirmation = gen("p");
-    confirmation.textContent = "Confirmation Code: " + data.confirmation_code;
-
-    card.appendChild(heading);
-    card.appendChild(datetime);
-    card.appendChild(quantity);
-    card.appendChild(costPerBook);
-    card.appendChild(cost);
-    card.appendChild(sellerName);
-    card.appendChild(confirmation);
-
-    id("history").appendChild(card);
-  }
-
-  function makeHeading() {
-    let heading = gen("h1");
-    const username = window.sessionStorage.getItem("username");
-    heading.textContent = username + "'s Purchase History";
-    qs("body").prepend(heading);
   }
 
   function handleMessage(message, msgType) {

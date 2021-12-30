@@ -1,3 +1,5 @@
+# Bookstore
+
 ## Done- server side
 
 Register
@@ -6,14 +8,17 @@ Logout
 Purchase
 Inventory / Search
 History
+New item
 
 ## Done- client side
 
 Login
 Logout
-Inventory view, filtering
+Inventory view
 View buy history
 View sell history
+Add new item
+Purchase
 
 ## TODO
 
@@ -23,15 +28,8 @@ a list of purchases that have been made which you sold
 Hashing for password
 
 Confirmation code fix - debate one confirmation for entire card or for each book?
+Also confirmation code- usage?
 
 Sell history page - enable filtering by specific book
 
-## LEFTOFF / NEXT STEPS
-
-## TAKE A LOOK AT LATER
-
-Style the history stuff differently
-
-Do we really need to do a fetch each time we filter?
-
-## Code for later
+Purchase page - division by day bought

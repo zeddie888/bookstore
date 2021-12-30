@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='styles.css' rel='stylesheet'>
+    <script src="sell.js"></script>
+    <title>Bookstore</title>
+  </head>
+
+  <body>
+    <h1 class="title">List an Item For Sale</h1>
+    <div id="message"></div>
+    <p>
+      <a href="index.html">Back</a>
+    </p>
+
+    <div id="sell" class="profile">
+      <h2>Sell Item</h2>
+      <form id="sell-form">
+        <label for='sell-title'>Title</label>
+        <input id="sell-title" type='text' name='title' required>
+        <label for='sell-author'>Author</label>
+        <input id="sell-author" type='text' name='author' required>
+
+        <label for='sell-author'>Subject</label>
+        <select name="subject" id="sell-subject">
+          <option value="Biology">Biology</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="English">English</option>
+          <option value="Math">Math</option>
+          <option value="Physics">Physics</option>
+          <option value="Psychology">Psychology</option>
+        </select>
+
+
+        <label for='sell-descr'>Description</label>
+        <textarea id="sell-descr" name="description" form="sell-form"></textarea>
+        <label for='sell-price'>Price</label>
+        <input id="sell-price" type='number' name='price' required>
+        <label for='sell-quantity'>Quantity</label>
+        <input id="sell-quantity" type='number' name='quantity' required>
+        <button disabled>Submit</button>
+      </form>
+    </div>
+
+
+
+
+  </body>
+
+</html>

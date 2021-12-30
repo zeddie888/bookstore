@@ -149,6 +149,10 @@ app.post("/bookstore/purchase", async (req, res) => {
       return res.status(INVALID_REQUEST).send("User does not exist.");
     }
 
+    if (!(await isLoggedIn(userID))) {
+      return res.status(INVALID_REQUEST).send("User is not logged in");
+    }
+
     const item = await itemExists(itemID);
     if (!item) {
       return res.status(INVALID_REQUEST).send("Item does not exist");
@@ -226,8 +230,6 @@ app.get("/bookstore/inventory/:subject", async (req, res) => {
       }
     }
     qry += " ORDER BY title";
-    // console.log(qry);
-    // console.log(placeholderVals);
     let result = await db.all(qry, placeholderVals);
     res.json(result);
   } catch (err) {
@@ -253,6 +255,11 @@ app.post("/bookstore/viewBuyHistory", async (req, res) => {
     if (!(await userIDExists(userID))) {
       return res.status(INVALID_REQUEST).send("User does not exist");
     }
+
+    if (!(await isLoggedIn(userID))) {
+      return res.status(INVALID_REQUEST).send("User is not logged in");
+    }
+
     let qry =
       "SELECT p.*, i.title, i.author, u.username \
         FROM purchases p, inventory i, users u \
@@ -284,6 +291,11 @@ app.post("/bookstore/viewSellHistory", async (req, res) => {
     if (!(await userIDExists(sellerID))) {
       return res.status(INVALID_REQUEST).send("Seller does not exist");
     }
+
+    if (!(await isLoggedIn(sellerID))) {
+      return res.status(INVALID_REQUEST).send("User is not logged in");
+    }
+
     const placeholderVals = [sellerID];
     let qry =
       " SELECT u.username, i.title, i.author, p.quantity, p.price_per_item, \
@@ -318,6 +330,72 @@ app.get("/bookstore/itemInfo/:itemID", async (req, res) => {
     res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
   }
 });
+
+/*
+If user is logged in
+Given: new book title, userID, author, description, price, quantity, subject
+
+Check that book title is unique?
+Description must be one in drop-down
+
+Add that book to the inventory
+
+*/
+
+app.post("/bookstore/listNewItem", async (req, res) => {
+  try {
+    let db = await getDBConnection();
+    res.type("text");
+    if (
+      !req.body.userID ||
+      !req.body.title ||
+      !req.body.author ||
+      !req.body.description ||
+      !req.body.price ||
+      !req.body.quantity ||
+      !req.body.subject
+    ) {
+      return res.status(INVALID_REQUEST).send(PARAM_ERROR);
+    }
+    const userID = req.body.userID;
+    if (!(await userIDExists(userID))) {
+      return res.status(INVALID_REQUEST).send("User does not exist");
+    }
+    if (!(await isLoggedIn(userID))) {
+      return res.status(INVALID_REQUEST).send("User is not logged in");
+    }
+
+    let addItemQry =
+      "INSERT INTO inventory (title, author, subject, description, \
+      price, quantity, seller) VALUES(?, ?, ?, ?, ?, ?, ?)";
+    await db.run(addItemQry, [
+      req.body.title,
+      req.body.author,
+      req.body.subject,
+      req.body.description,
+      req.body.price,
+      req.body.quantity,
+      req.body.userID,
+    ]);
+    res.send("Item added for sale!");
+  } catch (err) {
+    res.status(SERVER_ERROR).send(SERVER_ERR_MSG);
+  }
+});
+
+async function isLoggedIn(userID) {
+  try {
+    let db = await getDBConnection();
+    let checkLoggedIn = await db.get(
+      "SELECT is_logged_in FROM users WHERE id=?",
+      userID
+    );
+    await db.close();
+    return checkLoggedIn.is_logged_in === 1;
+  } catch (error) {
+    throw new Error(SERVER_ERR_MSG);
+  }
+}
 
 async function itemExists(itemID) {
   try {

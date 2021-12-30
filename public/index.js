@@ -51,11 +51,14 @@
   }
 
   function displayBooks(subject) {
-    id("shelf-display").innerHTML = "";
     fetch(BASE_URL + "inventory/" + subject)
       .then(statusCheck)
       .then((res) => res.json())
       .then((books) => {
+        id("shelf-display").innerHTML = "";
+        if (books.length === 0) {
+          id("shelf-display").textContent = "No books of subject: " + subject;
+        }
         for (let book in books) {
           makeBookCard(books[book]);
         }
@@ -286,8 +289,13 @@
     let sellHistory = gen("a");
     sellHistory.textContent = "Items Sold";
     sellHistory.href = "sold.html";
+    let sellItem = gen("a");
+    sellItem.textContent = "Sell Book(s)";
+    sellItem.href = "sell.html";
+
     histories.appendChild(buyHistory);
     histories.appendChild(sellHistory);
+    histories.appendChild(sellItem);
 
     let logout = gen("button");
     logout.id = "logout-btn";
