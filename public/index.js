@@ -252,7 +252,7 @@
     displayBooks("All");
   }
 
-  function buyAllFromCart() {
+  async function buyAllFromCart() {
     let purchases = Object.keys(cart);
     for (let i = 0; i < purchases.length; i++) {
       let itemID = purchases[i];
@@ -261,16 +261,14 @@
       data.append("itemID", itemID);
       data.append("userID", window.sessionStorage.getItem("userID"));
       data.append("quantity", cart[itemID]);
-      fetch(BASE_URL + "purchase", { method: "POST", body: data })
+      await fetch(BASE_URL + "purchase", { method: "POST", body: data })
         .then(statusCheck)
         .then((res) => res.text())
         .then((res) => handleMessage(res, "success"))
-        .then(() => {
-          clearCart();
-          sendLoginRequest(true);
-        })
         .catch((err) => handleMessage(err, "error"));
     }
+    clearCart();
+    sendLoginRequest(true);
   }
 
   function makeProfileCard(user) {
@@ -344,8 +342,7 @@
     cartTotal = 0;
     id("cart-total").innerHTML = "";
 
-    const cartItems = id("cart-items");
-    cartItems.innerHTML = "";
+    id("cart-items").innerHTML = "";
     for (let itemID in cart) {
       getItemData(itemID);
     }
