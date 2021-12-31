@@ -13,13 +13,19 @@ const INVALID_REQUEST = 400;
 const SERVER_ERROR = 500;
 const PORT_NUMBER = 8000;
 const PARAM_ERROR = "One or more required parameters is missing";
+const USER_DNE_ERROR = "User does not exist";
+const USER_NOT_LOGGEDIN_ERROR = "User is not logged in";
 const SERVER_ERR_MSG = "An error occurred on the server. Try again later.";
 
 /*
-Accept username and password
-Check if auth successful- check if user exists, then check if password matches that of
-Update isLoggedIn
-Return information about the user
+Logs in user
+
+Given: username, password
+Check:
+  If user exists
+  If password is correct
+Update database to set is_logged_in = 1 for user
+Returns JSON about the user
 */
 app.post("/bookstore/login", async (req, res) => {
   try {
@@ -33,7 +39,7 @@ app.post("/bookstore/login", async (req, res) => {
 
     const user = await usernameExists(username);
     if (!user) {
-      return res.status(INVALID_REQUEST).send("User does not exist");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
     if (!isValidPassword(password)) {
       return res.status(INVALID_REQUEST).send("Password format invalid");
@@ -55,9 +61,13 @@ app.post("/bookstore/login", async (req, res) => {
 });
 
 /*
-Check if user exists
+Logout user
+
+Given: user ID
+Check: if user exists
 Log out the user by setting is_logged_in to 0
-Return a text message
+
+Return text
 */
 app.post("/bookstore/logout", async (req, res) => {
   try {
@@ -71,7 +81,7 @@ app.post("/bookstore/logout", async (req, res) => {
     const user = await userIDExists(userID);
 
     if (!user) {
-      return res.status(INVALID_REQUEST).send("User does not exist");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
 
     await db.run("UPDATE users SET is_logged_in=? WHERE id=?", [0, userID]);
@@ -83,10 +93,14 @@ app.post("/bookstore/logout", async (req, res) => {
 });
 
 /*
-Check if email, username, password provided
-Check if user does NOT already exist
-Check if password is valid
-Return a text message
+Register new user by adding new record into Users table
+
+Given: new user email, username, password
+Check
+  If user does NOT already exist
+  If password is of valid format
+
+Return text
 */
 app.post("/bookstore/register", async (req, res) => {
   try {
@@ -117,19 +131,20 @@ app.post("/bookstore/register", async (req, res) => {
 });
 
 /*
-Buy an item
+Makes purchase
 
-Check if user is logged in given id
-Check item ID is valid
-Check if quantity in cart <= item left in inventory
-Check if user has enough credit for the purchase
+Given: userID, itemID, quantity
+Check:
+  If user exists and is logged in
+  If item exists
+  If quantity in cart <= item left in inventory
+  If user has enough credit for the purchase
 
-Buy the item:
-Make a new entry in Purchases table
-Decrement user credits by that amount
-Decrement item quantity by quantity bought
-
-Increment seller's credits by amount bought * price  TODO
+Note: buy the item:
+  Make a new entry in Purchases table
+  Decrement user credits by amount bought * price
+  Increment seller's credits by amount bought * price
+  Decrement item quantity by quantity bought
 
 Return text
 */
@@ -146,11 +161,11 @@ app.post("/bookstore/purchase", async (req, res) => {
 
     const user = await userIDExists(userID);
     if (!user) {
-      return res.status(INVALID_REQUEST).send("User does not exist.");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
 
     if (!(await isLoggedIn(userID))) {
-      return res.status(INVALID_REQUEST).send("User is not logged in");
+      return res.status(INVALID_REQUEST).send(USER_NOT_LOGGEDIN_ERROR);
     }
 
     const item = await itemExists(itemID);
@@ -182,6 +197,7 @@ app.post("/bookstore/purchase", async (req, res) => {
       userID,
     ]);
 
+    // Increment seller's credits
     const seller = await userIDExists(item.seller);
     const sellerCredits = seller.credits;
     await db.run("UPDATE users SET credits=? WHERE id=?", [
@@ -202,11 +218,12 @@ app.post("/bookstore/purchase", async (req, res) => {
 });
 
 /*
-View inventory of ALL books
-But must specify subject- "all" for no subject in particular
-Can also provide query- search string (author, title, description)
-
-Return JSON of all books that meet description
+Get JSON about all books that match filter criteria
+Given:
+  subject- "All" for no subject in particular
+  Can also provide (optional) query- search string (author, title, description)
+Check: none
+Return JSON
 */
 app.get("/bookstore/inventory/:subject", async (req, res) => {
   try {
@@ -238,11 +255,11 @@ app.get("/bookstore/inventory/:subject", async (req, res) => {
 });
 
 /*
-History of given user
-
-Check if user ID exists
-Return all purchases that have that USER ID, json
-
+Get JSON about this user's every purchase
+Given: user id
+Check:
+  User exists and is logged in
+Return JSON
 */
 app.post("/bookstore/viewBuyHistory", async (req, res) => {
   try {
@@ -253,11 +270,11 @@ app.post("/bookstore/viewBuyHistory", async (req, res) => {
     }
     const userID = req.body.userID;
     if (!(await userIDExists(userID))) {
-      return res.status(INVALID_REQUEST).send("User does not exist");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
 
     if (!(await isLoggedIn(userID))) {
-      return res.status(INVALID_REQUEST).send("User is not logged in");
+      return res.status(INVALID_REQUEST).send(USER_NOT_LOGGEDIN_ERROR);
     }
 
     let qry =
@@ -273,12 +290,11 @@ app.post("/bookstore/viewBuyHistory", async (req, res) => {
 });
 
 /*
-View purchases of item belonging to seller
-
-Given: required sellerID and optional query for a specific item ID
-Query the purchases table first for all purchases made on an item sold by seller
-Then if query provided, filter those for only items with itemID
-
+Get JSON about all purchases of any item where item's seller = this user
+Given: seller's userID and (optional) query for a specific item ID
+Check:
+  User exists and is logged in
+Return JSON
 */
 app.post("/bookstore/viewSellHistory", async (req, res) => {
   try {
@@ -289,11 +305,11 @@ app.post("/bookstore/viewSellHistory", async (req, res) => {
     }
     const sellerID = req.body.sellerID;
     if (!(await userIDExists(sellerID))) {
-      return res.status(INVALID_REQUEST).send("Seller does not exist");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
 
     if (!(await isLoggedIn(sellerID))) {
-      return res.status(INVALID_REQUEST).send("User is not logged in");
+      return res.status(INVALID_REQUEST).send(USER_NOT_LOGGEDIN_ERROR);
     }
 
     const placeholderVals = [sellerID];
@@ -316,6 +332,12 @@ app.post("/bookstore/viewSellHistory", async (req, res) => {
   }
 });
 
+/**
+ * Get JSON about item with id = itemID
+ * Given: item id
+ * Check: if item exists
+ * Return JSON
+ */
 app.get("/bookstore/itemInfo/:itemID", async (req, res) => {
   try {
     let itemInfo = await itemExists(req.params.itemID);
@@ -332,16 +354,12 @@ app.get("/bookstore/itemInfo/:itemID", async (req, res) => {
 });
 
 /*
-If user is logged in
-Given: new book title, userID, author, description, price, quantity, subject
-
-Check that book title is unique?
-Description must be one in drop-down
-
-Add that book to the inventory
-
+Adds new book to Inventory table
+Given: new book title, author, subject, description, price, quantity, seller's userID
+Check:
+  User exists, is logged in
+Return text
 */
-
 app.post("/bookstore/listNewItem", async (req, res) => {
   try {
     let db = await getDBConnection();
@@ -359,10 +377,10 @@ app.post("/bookstore/listNewItem", async (req, res) => {
     }
     const userID = req.body.userID;
     if (!(await userIDExists(userID))) {
-      return res.status(INVALID_REQUEST).send("User does not exist");
+      return res.status(INVALID_REQUEST).send(USER_DNE_ERROR);
     }
     if (!(await isLoggedIn(userID))) {
-      return res.status(INVALID_REQUEST).send("User is not logged in");
+      return res.status(INVALID_REQUEST).send(USER_NOT_LOGGEDIN_ERROR);
     }
 
     let addItemQry =
@@ -383,6 +401,11 @@ app.post("/bookstore/listNewItem", async (req, res) => {
   }
 });
 
+/**
+ * Checks database to see if user with given userID is logged in
+ * @param {number} userID
+ * @returns {boolean} - true if user is logged in; false otherwise
+ */
 async function isLoggedIn(userID) {
   try {
     let db = await getDBConnection();
@@ -397,6 +420,11 @@ async function isLoggedIn(userID) {
   }
 }
 
+/**
+ * Returns item information if an item exists with given itemID
+ * @param {number} itemID
+ * @returns {Object} - Information about item with id of itemID
+ */
 async function itemExists(itemID) {
   try {
     let db = await getDBConnection();
@@ -409,6 +437,12 @@ async function itemExists(itemID) {
   }
 }
 
+/**
+ * Checks database to see if given password is identical to one stored for given user
+ * @param {string} username
+ * @param {string} password
+ * @returns {boolean} true if password is correct; false otherwise
+ */
 async function isCorrectPassword(username, password) {
   try {
     let db = await getDBConnection();
@@ -421,11 +455,22 @@ async function isCorrectPassword(username, password) {
   }
 }
 
+/**
+ * Returns if given password is of valid format (matches specific Regex pattern)
+ * format: between 4 and 20 chars, first char is a capitalized letter, no spaces
+ * @param {string} password
+ * @returns {boolean} - true if given password is of valid format; false otherwise
+ */
 function isValidPassword(password) {
   const pattern = /^[a-zA-Z]\S{3,19}$/;
   return pattern.test(password);
 }
 
+/**
+ * Returns user information if a user exists with given username
+ * @param {string} username - user's username
+ * @returns {Object} - Information about user (id, credits, etc.)
+ */
 async function usernameExists(username) {
   try {
     let db = await getDBConnection();
@@ -438,6 +483,11 @@ async function usernameExists(username) {
   }
 }
 
+/**
+ * Returns user information if a user exists with given userID
+ * @param {number} userID - user's ID
+ * @returns {Object} - Information about user (id, credits, etc.)
+ */
 async function userIDExists(userID) {
   try {
     let db = await getDBConnection();

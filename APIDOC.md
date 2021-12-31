@@ -1,52 +1,33 @@
-# POST login
+# Bookstore API Documentation
 
-Goal: login user
-Body: username, password
-Return JSON: all user info
+The purpose of the Bookstore API is to handle the transfer of data to and from the client side -
+handle login/logout requests, book purchases, search filtering, etc.
 
-# POST logout
+## Register a New User
 
-Goal: logout user
-Body: userID
-Return text: success message
+**Request Format:** `/bookstore/register`
 
-# POST register
+**Body Parameters:** `email`, `username`, `password`
 
-Goal: register new user
-Body: email, username, password
-Return text: success message
+**Request Type:** `POST`
 
-# POST purchase
+**Returned Data Format**: Text
 
-Goal: purchase item
-Body: userID, itemID, quantity
-Return text: success message
+**Description:** Registers a new user, if a user with given username does not already exist
 
-# GET inventory/:subject
+**Example Request:** `/bookstore/register`
 
-Goal: get books in inventory w/ subject=subj
-Params: subject
-Query: search
-Return JSON: all books that meet filter req
+**Example Response:**
 
-# GET viewBuyHistory/:userID
+```
+Successfully registered
+```
 
-Goal: view history of user with userID=userID
-Params: userID
-Return JSON: all purchases made by that user
+**Error Handling:**
 
-# GET viewSellHistory/:sellerID
-
-Goal: view history of all products sold belonging to seller
-Params: sellerID
-Query: itemID for a specific selling history of an item
-Return JSON: all purchases made for seller, possibly for a specific item
-
-# FUNCTIONS
-
-1. async itemExists(itemID) - return db data abt item
-2. async isCorrectPassword(username, password) - return if password matches that in db for user, true or false
-3. isValidPassword(password)- test if password is of valid format, return true or false
-4. async usernameExists(username) - return db data abt user
-5. async userIDExists(userID) - return db data abt user
-6. async getDBConnection()
+- Possible 400 (Invalid Request):
+  - If the username or password are empty, a 400 error is thrown with the message `One or more required parameters are missing`
+  - If the username already exists in the database, a 400 error is thrown with the message `User already exists`
+  - If the password is of invalid format, a 400 error is thrown with the message `Password format invalid`
+- Possible 500 (Server Error):
+  - A 500 error is thrown with the text message "`An error occurred on the server. Try again later.`"
